@@ -14,22 +14,19 @@ import java.io.IOException;
  */
 public class Device {
 
-    //"The maximum size of a HID Feature report is 64 bytes"
-    //http://msdn.microsoft.com/en-us/library/windows/hardware/hh406599(v=vs.85).aspx
-    static private final int MAX_REPORT_SIZE = 64;
+    static private final int MAX_REPORT_SIZE = 226;
+    static private final int VENDOR_ID = 0x801;
+    static private final int PRODUCT_ID = 2;
 
     static private HIDManager manager;
     private HIDDevice device;
 
-    private Integer id = 0;
-    private Integer vendor = 0;
+    private Integer id = PRODUCT_ID;
+    private Integer vendor = VENDOR_ID;
     private Integer timeout = 0;
 
-
-    public Device(Integer id, Integer vendor) throws CardReaderException {
-
+    private void loadDriver() throws CardReaderException {
         com.codeminders.hidapi.ClassPathLibraryLoader.loadNativeHIDLibrary();
-
         if (manager == null) {
 
             try {
@@ -38,6 +35,17 @@ public class Device {
                 throw new CardReaderException("Cannot initialize HIDManager", e.getCause());
             }
         }
+    }
+
+    public Device() throws CardReaderException {
+
+        loadDriver();
+        open();
+    }
+
+    public Device(Integer id, Integer vendor) throws CardReaderException {
+
+        loadDriver();
 
         this.id = id;
         this.vendor = id;
@@ -78,7 +86,12 @@ public class Device {
         int size = 0;
 
         try {
-            size = device.read(buffer);
+            if (OSChecker.isUnix()) {
+                size = _readOnLinux(buffer);
+            } else {
+                size = device.read(buffer);
+            }
+
         } catch (IOException e) {
             throw new CardReaderException("Cannot read", e.getCause());
         }
@@ -87,6 +100,28 @@ public class Device {
         System.arraycopy(buffer, 0, result, 0, size);
 
         return result;
+    }
+
+    private int _readOnLinux(byte[] buffer) throws IOException {
+
+        int s = 2;
+        int size = 0;
+
+        while (s != 1) {
+
+            byte[] buff = new byte[8];
+            s = device.read(buff);
+
+            for (int i = 0; i < s; i++) {
+
+                buffer[size + i] = buff[i];
+                size -= (buff[i] != 0) ? 0 : 1;
+            }
+
+            size += s;
+        }
+
+        return size;
     }
 
     private byte[] readTimeout() throws CardReaderException {
@@ -121,6 +156,7 @@ public class Device {
     }
 
     // Getters and Setters
+
     public Integer getId() {
         return id;
     }

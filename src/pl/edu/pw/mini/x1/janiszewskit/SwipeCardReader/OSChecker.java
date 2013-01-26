@@ -2,7 +2,7 @@ package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader;
 
 public class OSChecker {
 
-    private static String OS = System.getProperty("os.name").toLowerCase();
+    private final static String OS = System.getProperty("os.name").toLowerCase();
 
     public static boolean isWindows() {
         return (OS.indexOf("win") >= 0);
