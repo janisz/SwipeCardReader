@@ -1,9 +1,4 @@
-package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Tracks;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card.Tracks;
 
 /**
  * User: root
@@ -28,20 +23,27 @@ public class TrackOne extends Track {
         primaryAccountNumber = fields[0].split("B")[1];
 
         name = fields[1];
-        firstName = name.split("\\/")[1];
-        lastName = name.split("\\/")[0];
+        firstName = getName().split("\\/")[1];
+        lastName = getName().split("\\/")[0];
 
-        try {
-            DateFormat formatter = new SimpleDateFormat("yyMM");
-            String date = fields[2].substring(0, 4);
-            expirationDate = (Date) formatter.parse(date);
-        } catch (ParseException e) {
-            expirationDate = new Date();
-            //ignore error, just create default date instead
-        }
+        setExpirationDate(fields[2]);
 
         serviceCode = Integer.parseInt(fields[2].substring(4, 7));
         discretionalData = fields[2].substring(7);
+    }
+
+    //Getters
+
+    public String getName() {
+        return name;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
 }
