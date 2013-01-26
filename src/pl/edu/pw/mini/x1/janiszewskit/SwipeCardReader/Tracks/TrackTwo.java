@@ -23,22 +23,21 @@ public class TrackTwo extends Track {
         }
 
         String[] tracks = track.split("\\?");
-        String[] fields = tracks[2].split("\\^");
+        String[] fields = tracks[1].split("=");
 
-        primaryAccountNumber = fields[0].split("B")[1];
-
-        name = fields[1];
-        firstName = name.split("\\/")[0];
-        lastName = name.split("\\/")[1];
+        primaryAccountNumber = fields[0].split(";")[1];
 
         try {
             DateFormat formatter = new SimpleDateFormat("yy-MM");
-            expirationDate = (Date) formatter.parse(fields[2]);
+            expirationDate = (Date) formatter.parse(fields[1]);
         } catch (ParseException e) {
             //ignore error, just create default date instead
         } finally {
             expirationDate = new Date();
         }
+
+        serviceCode = Integer.parseInt(fields[1].substring(4, 7));
+        discretionalData = fields[1].substring(7);
     }
 
 }
