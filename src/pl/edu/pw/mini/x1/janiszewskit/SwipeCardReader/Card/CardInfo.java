@@ -2,6 +2,7 @@ package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card;
 
 import pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card.Tracks.TrackOne;
 import pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card.Tracks.TrackTwo;
+import pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader.Exceptions.CardReaderException;
 
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -32,13 +33,13 @@ public class CardInfo {
      *
      * @param rawCardData raw card data
      */
-    public CardInfo(byte[] rawCardData) {
+    public CardInfo(byte[] rawCardData) throws CardReaderException {
 
         try {
             trackOne = new TrackOne(rawCardData);
             trackTwo = new TrackTwo(rawCardData);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Cannot create CardInfo from given data", e.getCause());
+            throw new CardReaderException("Cannot create CardInfo from given data", e.getCause());
         }
     }
 
