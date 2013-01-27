@@ -1,16 +1,23 @@
-package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader;
+package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.codeminders.hidapi.HIDManager;
+import pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader.Exceptions.CardReaderException;
+import pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Utils.OSChecker;
 
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: root
- * Date: 1/26/13
- * Time: 6:27 PM
- * To change this template use File | Settings | File Templates.
+ * This is the class that is efectivly a communication layer
+ * between Java and device. Underneth it use <code>hidapi</code>
+ * to create connection with card reader.
+ * <p/>
+ * On GNU/Linux it require special permissions to create connection
+ * with HID device. Easiest way to run it is to run a program as a
+ * root. Also GNU/Linux systems read data in 8 bytes chunks, so there
+ * is need for special treatment those OS.
+ * <p/>
+ * Tested only on Mac OS X and Fedora 17
  */
 public class Device {
 
@@ -25,6 +32,12 @@ public class Device {
     private Integer vendor = VENDOR_ID;
     private Integer timeout = 0;
 
+    /**
+     * Method resposible for loading native code and set up devices manager
+     * Should be called as a first method, before start doing anything.
+     *
+     * @throws CardReaderException
+     */
     private void loadDriver() throws CardReaderException {
         com.codeminders.hidapi.ClassPathLibraryLoader.loadNativeHIDLibrary();
         if (manager == null) {
@@ -37,12 +50,27 @@ public class Device {
         }
     }
 
+    /**
+     * Default constructor.
+     * <p/>
+     * Create new instance of Device class with default vendor and product id
+     *
+     * @throws CardReaderException
+     */
     public Device() throws CardReaderException {
 
         loadDriver();
         open();
     }
 
+    /**
+     * Constructor that create instance connected vith desired device
+     * specified by parameters
+     *
+     * @param id     device's product id
+     * @param vendor device's vendor id
+     * @throws CardReaderException
+     */
     public Device(Integer id, Integer vendor) throws CardReaderException {
 
         loadDriver();
@@ -53,12 +81,28 @@ public class Device {
         open();
     }
 
+    /**
+     * Constructor that create instance connected vith desired device
+     * specified by parameters.
+     *
+     * @param id      device's product id
+     * @param vendor  device's vendor id
+     * @param timeout reading timeout in milliseconds
+     * @throws CardReaderException
+     */
     public Device(Integer id, Integer vendor, Integer timeout) throws CardReaderException {
 
         this(id, vendor);
         this.timeout = timeout;
     }
 
+    /**
+     * Open connection with device. Connection is opened automatically
+     * when object is created but can be closed by user
+     *
+     * @throws CardReaderException
+     * @see pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader.Device#close()
+     */
     public void open() throws CardReaderException {
 
         try {
@@ -69,6 +113,13 @@ public class Device {
 
     }
 
+    /**
+     * Close connection with device. Before next read attempt connection should
+     * be resotred using <code>open</code>
+     *
+     * @throws CardReaderException
+     * @see pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader.Device#open()
+     */
     public void close() throws CardReaderException {
 
         try {
@@ -78,6 +129,12 @@ public class Device {
         }
     }
 
+    /**
+     * Reads data form card. Methods waits until user swipe his card
+     *
+     * @return array of read bytes
+     * @throws CardReaderException
+     */
     public byte[] read() throws CardReaderException {
 
         if (!(timeout.equals(0))) return readTimeout();
@@ -102,6 +159,13 @@ public class Device {
         return result;
     }
 
+    /**
+     * Handle GNU/Linux specify HID input
+     *
+     * @param buffer byte array for read data
+     * @return count of read bytes
+     * @throws IOException
+     */
     private int _readOnLinux(byte[] buffer) throws IOException {
 
         int s = 2;
@@ -124,6 +188,13 @@ public class Device {
         return size;
     }
 
+    /**
+     * Read card untill timesout
+     * Not tested! Be careful.
+     *
+     * @return
+     * @throws CardReaderException
+     */
     private byte[] readTimeout() throws CardReaderException {
 
         byte[] buffer = new byte[MAX_REPORT_SIZE];
@@ -137,13 +208,26 @@ public class Device {
         return result;
     }
 
-
-    protected void finalize() throws CardReaderException {
-        // It is important to call close() on device if user forgot to do so,
-        // since it frees pointer to internal data structure.
+    /**
+     * Close connection before utilize object.
+     * It is important to do it on device if user forgot to do so,
+     * since it frees pointer to internal data structure.
+     *
+     * @throws CardReaderException
+     */
+    protected void finalize() throws Throwable {
+        //
         close();
+        super.finalize();
     }
 
+    /**
+     * Determine if two instance are pointing on same device
+     *
+     * @param object
+     * @return True if instance point on same device,
+     *         otherwise return false
+     */
     public boolean equals(Object object) {
 
         if (!(object instanceof Device))
@@ -151,6 +235,11 @@ public class Device {
         return ((Device) object).device.equals(this.device);
     }
 
+    /**
+     * Compute object hash
+     *
+     * @return computed hash code
+     */
     public int hashCode() {
         return device.hashCode();
     }

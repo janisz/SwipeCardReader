@@ -1,9 +1,7 @@
 package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card;
 
 /**
- * User: root
- * Date: 1/26/13
- * Time: 11:36 PM
+ * Enumeration holding popular card vendors
  */
 public enum CardType {
     VISA("VISA"),
@@ -20,7 +18,7 @@ public enum CardType {
 
     private final String text;
 
-    /* (non-Javadoc)
+    /**
      * @see java.lang.Enum#toString()
      */
     @Override

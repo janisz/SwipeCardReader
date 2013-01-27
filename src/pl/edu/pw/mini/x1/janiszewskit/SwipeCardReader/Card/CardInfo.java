@@ -9,17 +9,27 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA.
- * User: root
- * Date: 1/26/13
- * Time: 7:54 PM
- * To change this template use File | Settings | File Templates.
+ * Class containing information about card.
+ * Could be imagined as a implementation of
+ * real plastic card.
+ * <p/>
+ * It doesn't contain information about track3
+ * since it is not standardized and in most
+ * cases empty (filled with 0).
+ *
+ * @see TrackOne
+ * @see TrackTwo
  */
 public class CardInfo {
 
     private TrackOne trackOne;
     private TrackTwo trackTwo;
 
+    /**
+     * Create new card from given raw data.
+     *
+     * @param rawCardData raw card data
+     */
     public CardInfo(byte[] rawCardData) {
 
         trackOne = new TrackOne(rawCardData);
@@ -48,10 +58,18 @@ public class CardInfo {
         return trackOne.getPrimaryAccountNumber();
     }
 
+    /**
+     * @return Card number with replaced the middle digitts
+     *         with *, it is also formatted in 4 chars chunks
+     *         separated with space.
+     */
     public String getMaskedNumber() {
         return getCardNumber().substring(0, 4) + " **** **** " + getCardNumber().substring(12);
     }
 
+    /**
+     * @see CardType
+     */
     public CardType getCardType() {
         //from http://stackoverflow.com/a/72801/1387612
         String number = trackOne.getPrimaryAccountNumber();

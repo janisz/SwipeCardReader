@@ -1,9 +1,8 @@
 package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card.Tracks;
 
 /**
- * User: root
- * Date: 1/26/13
- * Time: 7:58 PM
+ * Hold information about track2 on
+ * magnetic card
  */
 public class TrackTwo extends Track {
 

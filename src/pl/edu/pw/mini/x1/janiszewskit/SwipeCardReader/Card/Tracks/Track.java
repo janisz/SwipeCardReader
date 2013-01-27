@@ -6,9 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * User: root
- * Date: 1/26/13
- * Time: 9:39 PM
+ * Parent class for tracks. Contain all
+ * standard fields.
  */
 public abstract class Track {
 
@@ -27,6 +26,14 @@ public abstract class Track {
         this.rawData = rawData;
     }
 
+    /**
+     * @return string containing all
+     *         not null properties with
+     *         labels. Each property is
+     *         in own line.
+     *         <p/>
+     *         Date is formatted as on real card
+     */
     public String toString() {
 
         String result = "";
@@ -45,6 +52,12 @@ public abstract class Track {
         return result;
     }
 
+    /**
+     * Convert string started with date to
+     * <code>expirationDate</code>
+     *
+     * @param string expiration date
+     */
     protected void setExpirationDate(String string) {
         try {
             DateFormat formatter = new SimpleDateFormat("yyMM");

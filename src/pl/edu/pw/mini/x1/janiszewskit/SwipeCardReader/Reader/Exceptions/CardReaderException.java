@@ -1,14 +1,15 @@
-package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader;
+package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader.Exceptions;
 
 /**
- * Created with IntelliJ IDEA.
- * User: root
- * Date: 1/26/13
- * Time: 6:50 PM
- * To change this template use File | Settings | File Templates.
+ * Exceptions trowed by Device
+ *
+ * @see pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Reader.Device
  */
 public class CardReaderException extends Exception {
 
+    /**
+     * Default constructor
+     */
     public CardReaderException() {
     }
 
