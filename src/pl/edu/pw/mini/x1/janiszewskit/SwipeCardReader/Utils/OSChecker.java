@@ -5,6 +5,9 @@ package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Utils;
  */
 public class OSChecker {
 
+    /**
+     * Contains operating system name
+     */
     private final static String OS = System.getProperty("os.name").toLowerCase();
 
     /**

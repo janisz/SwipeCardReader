@@ -6,8 +6,16 @@ package pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card.Tracks;
  */
 public class TrackTwo extends Track {
 
+    /**
+     * Maximum length of track according to ISO/IEC 7813
+     */
     private final Integer TRACK_LENGTH = 37;
 
+    /**
+     * Initialize all fields with data from parameter
+     *
+     * @param rawTrack raw credit card data
+     */
     public TrackTwo(byte[] rawTrack) {
         super(rawTrack);
 

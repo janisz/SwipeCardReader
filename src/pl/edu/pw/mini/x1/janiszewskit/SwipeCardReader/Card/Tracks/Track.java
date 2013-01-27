@@ -11,14 +11,39 @@ import java.util.Date;
  */
 public abstract class Track {
 
+    /**
+     * raw card data passed in constructor
+     */
     protected byte[] rawData;
 
+    /**
+     * Cardholder name.
+     * <p/>
+     * Usually concatenation of
+     * last name and first name
+     * separated by <code>/</code>
+     */
     protected String name;
+    /**
+     * Cardholder first name.
+     */
     protected String firstName;
+    /**
+     * Cardholder name last name
+     */
     protected String lastName;
+    /**
+     * Usually, but not always, matches the credit card
+     * number printed on the front of the card
+     */
     protected String primaryAccountNumber;
     protected Date expirationDate;
     protected Integer serviceCode;
+    /**
+     * May include Pin Verification Key Indicator,
+     * PIN Verification Value, Card Verification Value or
+     * Card Verification Code
+     */
     protected String discretionalData;
 
 
