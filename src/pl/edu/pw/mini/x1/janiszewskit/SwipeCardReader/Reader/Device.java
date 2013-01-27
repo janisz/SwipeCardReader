@@ -11,6 +11,7 @@ import java.io.IOException;
  * This is the class that is efectivly a communication layer
  * between Java and device. Underneth it use <code>hidapi</code>
  * to create connection with card reader.
+ * You can think about Device as a Data Access Layer
  * <p/>
  * On GNU/Linux it require special permissions to create connection
  * with HID device. Easiest way to run it is to run a program as a

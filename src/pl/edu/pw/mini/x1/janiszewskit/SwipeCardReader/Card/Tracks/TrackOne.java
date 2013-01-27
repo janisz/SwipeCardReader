@@ -24,19 +24,24 @@ public class TrackOne extends Track {
             track += (char) b;
         }
 
-        String[] tracks = track.split("\\?");
-        String[] fields = tracks[0].split("\\^");
+        try {
 
-        primaryAccountNumber = fields[0].split("B")[1];
+            String[] tracks = track.split("\\?");
+            String[] fields = tracks[0].split("\\^");
 
-        name = fields[1];
-        firstName = getName().split("\\/")[1];
-        lastName = getName().split("\\/")[0];
+            primaryAccountNumber = fields[0].split("B")[1];
 
-        setExpirationDate(fields[2]);
+            name = fields[1];
+            firstName = getName().split("\\/")[1];
+            lastName = getName().split("\\/")[0];
 
-        serviceCode = Integer.parseInt(fields[2].substring(4, 7));
-        discretionalData = fields[2].substring(7);
+            setExpirationDate(fields[2]);
+
+            serviceCode = Integer.parseInt(fields[2].substring(4, 7));
+            discretionalData = fields[2].substring(7);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Cannot create Track1 from given data", e.getCause());
+        }
     }
 
     //Getters

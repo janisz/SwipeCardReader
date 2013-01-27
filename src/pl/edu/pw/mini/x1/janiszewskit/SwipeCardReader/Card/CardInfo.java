@@ -12,6 +12,8 @@ import java.util.Date;
  * Class containing information about card.
  * Could be imagined as a implementation of
  * real plastic card.
+ * You can think about CardInfo as a Data
+ * Transfer Object
  * <p/>
  * It doesn't contain information about track3
  * since it is not standardized and in most
@@ -32,8 +34,12 @@ public class CardInfo {
      */
     public CardInfo(byte[] rawCardData) {
 
-        trackOne = new TrackOne(rawCardData);
-        trackTwo = new TrackTwo(rawCardData);
+        try {
+            trackOne = new TrackOne(rawCardData);
+            trackTwo = new TrackTwo(rawCardData);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Cannot create CardInfo from given data", e.getCause());
+        }
     }
 
     //Getters
