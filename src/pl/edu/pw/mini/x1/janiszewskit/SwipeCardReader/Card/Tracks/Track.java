@@ -4,6 +4,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+
+import static pl.edu.pw.mini.x1.janiszewskit.SwipeCardReader.Card.Tracks.TrackData.*;
 
 /**
  * Parent class for tracks. Contain all
@@ -17,34 +20,9 @@ public abstract class Track {
     protected byte[] rawData;
 
     /**
-     * Cardholder name.
-     * <p/>
-     * Usually concatenation of
-     * last name and first name
-     * separated by <code>/</code>
+     * Set holding card track data
      */
-    protected String name;
-    /**
-     * Cardholder first name.
-     */
-    protected String firstName;
-    /**
-     * Cardholder name last name
-     */
-    protected String lastName;
-    /**
-     * Usually, but not always, matches the credit card
-     * number printed on the front of the card
-     */
-    protected String primaryAccountNumber;
-    protected Date expirationDate;
-    protected Integer serviceCode;
-    /**
-     * May include Pin Verification Key Indicator,
-     * PIN Verification Value, Card Verification Value or
-     * Card Verification Code
-     */
-    protected String discretionalData;
+    protected HashMap<TrackData, Object> cardData = new HashMap<TrackData, Object>();
 
 
     protected Track(byte[] rawData) {
@@ -62,13 +40,13 @@ public abstract class Track {
     public String toString() {
 
         String result = "";
-        if (name != null)
-            result += "Name: " + name + "\n";
+        if (cardData.containsKey(NAME))
+            result += "Name: " + cardData.get(NAME) + "\n";
         if (getPrimaryAccountNumber() != null)
             result += "PAN:  " + getPrimaryAccountNumber() + "\n";
         if (getExpirationDate() != null) {
             DateFormat formatter = new SimpleDateFormat("MM/yy");
-            result += "Date: " + formatter.format(expirationDate) + "\n";
+            result += "Date: " + formatter.format(getExpirationDate()) + "\n";
         }
         if (getServiceCode() != null)
             result += "Code: " + getServiceCode() + "\n";
@@ -87,10 +65,10 @@ public abstract class Track {
         try {
             DateFormat formatter = new SimpleDateFormat("yyMM");
             String date = string.substring(0, 4);
-            expirationDate = (Date) formatter.parse(date);
+            cardData.put(EXPIRATION_DATE, (Date) formatter.parse(date));
         } catch (ParseException e) {
             //ignore error, just create default date instead
-            expirationDate = new Date();
+            cardData.put(EXPIRATION_DATE, new Date());
         }
     }
 
@@ -101,18 +79,18 @@ public abstract class Track {
     }
 
     public String getPrimaryAccountNumber() {
-        return primaryAccountNumber;
+        return (String) cardData.get(PRIMARY_ACCOUNT_NUMBER);
     }
 
     public Date getExpirationDate() {
-        return expirationDate;
+        return (Date) cardData.get(EXPIRATION_DATE);
     }
 
     public Integer getServiceCode() {
-        return serviceCode;
+        return (Integer) cardData.get(SERVICE_CODE);
     }
 
     public String getDiscretionalData() {
-        return discretionalData;
+        return (String) cardData.get(DISCRETIONAL_DATA);
     }
 }
