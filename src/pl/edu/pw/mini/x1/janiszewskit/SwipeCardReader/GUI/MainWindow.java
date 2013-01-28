@@ -130,12 +130,28 @@ public class MainWindow {
         return c;
     }
 
+    /**
+     * Set lock mode on window.
+     * <p/>
+     * Buttons are disabled
+     * and progresbar is visible
+     *
+     * @param bool
+     */
     private void setLockMode(boolean bool) {
 
         progressBar.setVisible(bool);
         buttonReadData.setEnabled(!bool);
+        checkBoxSanitizeData.setEnabled(!bool);
     }
 
+    /**
+     * Create new instance of
+     * device and assign it to
+     * <code>device</code>
+     *
+     * @return status of this operation
+     */
     private boolean openDevice() {
 
         try {
@@ -150,6 +166,11 @@ public class MainWindow {
         }
     }
 
+    /**
+     * Close current device
+     *
+     * @return status of this operation
+     */
     private boolean closeDevice() {
 
         try {
@@ -162,6 +183,9 @@ public class MainWindow {
         }
     }
 
+    /**
+     * Read card to cardInfo
+     */
     private void readCard() {
 
         setLockMode(true);
@@ -191,6 +215,9 @@ public class MainWindow {
         showCardInfo(checkBoxSanitizeData.isSelected());
     }
 
+    /**
+     * Download and set brand logo for readed card
+     */
     private void setBrandIconAndDeleteLabel() {
 
         java.net.URL where = null;
