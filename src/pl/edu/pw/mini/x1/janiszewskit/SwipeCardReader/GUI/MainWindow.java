@@ -45,80 +45,24 @@ public class MainWindow {
     private ImageIcon iconMastercard;
 
     /**
+     * Main method Launch window
+     */
+    public static void main(String[] args) {
+
+        JFrame frame = new JFrame("SwipeCardReader");
+        frame.setContentPane(new MainWindow().panel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    /**
      * Initialize ActionListeners
      */
     public MainWindow() {
 
-        checkBoxSanitizeData.addActionListener(
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        showCardInfo(checkBoxSanitizeData.isSelected());
-                    }
-                }
-        );
-
-        buttonReadData.addActionListener(
-
-                new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent) {
-
-                        progressBar.setVisible(true);
-                        buttonReadData.setEnabled(false);
-
-                        Thread worker = new Thread() {
-
-                            public void run() {
-
-                                try {
-
-                                    device = new Device();
-                                    byte[] data = device.read();
-                                    card = new CardInfo(data);
-                                } catch (CardReaderException e) {
-
-                                    TaskDialogs.showException(e);
-
-                                    int choice = TaskDialogs.choice(
-
-                                            findActiveFrame(),
-                                            "What do you want to do ?",
-                                            "It looks like there were some errors.",
-                                            WORK_WITH_FAKE_DATA,
-                                            new CommandLink("Exit",
-                                                    "Close application."),
-                                            new CommandLink("Work on fake data",
-                                                    "Play with some random data to see how application is working.")
-                                    );
-
-                                    if (choice == EXIT_PROGRAM)
-                                        System.exit(0);
-                                    else if (choice == WORK_WITH_FAKE_DATA)
-                                        card = generateFakeCard();
-                                } finally {
-
-                                    try {
-                                        device.close();
-                                    } catch (CardReaderException e) {
-                                        //Ignore possible errors
-                                    } catch (NullPointerException e) {
-                                        //Ignore possible errors
-                                    }
-
-                                    progressBar.setVisible(false);
-                                    buttonReadData.setEnabled(true);
-                                }
-
-                                showCardInfo(checkBoxSanitizeData.isSelected());
-                            }
-                        };
-
-                        worker.start();
-                    }
-                }
-        );
+        checkBoxSanitizeData.addActionListener(getSecureCheckBoxActionListener());
+        buttonReadData.addActionListener(getButtonCLickedActionListener());
     }
 
     /**
@@ -138,43 +82,10 @@ public class MainWindow {
         textServiceCode.setText(card.getTrackOne().getServiceCode().toString());
 
         cardBrand.setText(card.getCardType().toString());
-
-        java.net.URL where = null;
-
-        try {
-
-            if (card.getCardType().equals(CardType.VISA)) {
-
-                where = new URL("http://www.rowery-rybczynski.pl/themes/sklep/img/logo_paiement_visa.jpg");
-                iconVisa = iconVisa == null ? new ImageIcon(where) : iconVisa;
-                cardBrand.setIcon(iconVisa);
-            } else if (card.getCardType().equals(CardType.MASTERCARD)) {
-
-                where = new URL("http://www.rowery-rybczynski.pl/themes/sklep/img/logo_paiement_mastercard.jpg");
-                iconMastercard = iconMastercard == null ? new ImageIcon(where) : iconMastercard;
-                cardBrand.setIcon(iconMastercard);
-            }
-
-            cardBrand.setText("");
-        } catch (MalformedURLException e) {
-            //ignore
-        }
-
+        setBrandIconAndDeleteLabel();
 
         if (secure)
             textCardNumber.setText(card.getCardNumber());
-    }
-
-    /**
-     * Main method Launch window
-     */
-    public static void main(String[] args) {
-
-        JFrame frame = new JFrame("MainWindow");
-        frame.setContentPane(new MainWindow().panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
     }
 
     /**
@@ -200,14 +111,17 @@ public class MainWindow {
 
         CardInfo c = null;
         NameGenerator generator = NameGenerators.standardGenerator();
-        String s = "N'%B" +
-                GenerateCardNumber.nextNumber() +
-                "^" + generator.generate(Gender.male).getFamilyName().toUpperCase() + "/" + generator.generate(Gender.male).getGivenName().toUpperCase() +
-                "^" + GenerateCardNumber.nextDate() +
-                "226000000000000000000000000?;" +
-                GenerateCardNumber.nextNumber() +
-                "=" + GenerateCardNumber.nextDate() +
-                "2260000000000000?";
+        String s =
+                "N'%B" +
+                        GenerateCardNumber.nextNumber() +
+                        "^" + generator.generate(Gender.male).getFamilyName().toUpperCase() +
+                        "/" +
+                        generator.generate(Gender.male).getGivenName().toUpperCase() +
+                        "^" + GenerateCardNumber.nextDate() +
+                        "226000000000000000000000000?;" +
+                        GenerateCardNumber.nextNumber() +
+                        "=" + GenerateCardNumber.nextDate() +
+                        "2260000000000000?";
         try {
             c = new CardInfo(s.getBytes());
         } catch (CardReaderException e1) {
@@ -215,4 +129,122 @@ public class MainWindow {
         }
         return c;
     }
+
+    private void setLockMode(boolean bool) {
+
+        progressBar.setVisible(bool);
+        buttonReadData.setEnabled(!bool);
+    }
+
+    private boolean openDevice() {
+
+        try {
+            device = new Device();
+            byte[] data = device.read();
+            card = new CardInfo(data);
+            return true;
+        } catch (CardReaderException e) {
+
+            TaskDialogs.showException(e);
+            return false;
+        }
+    }
+
+    private boolean closeDevice() {
+
+        try {
+            device.close();
+            return true;
+        } catch (CardReaderException e) {
+            return false;
+        } catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    private void readCard() {
+
+        setLockMode(true);
+
+        if (!(openDevice())) {
+
+            int choice = TaskDialogs.choice(
+
+                    findActiveFrame(),
+                    "What do you want to do ?",
+                    "It looks like there were some errors.",
+                    WORK_WITH_FAKE_DATA,
+                    new CommandLink("Exit",
+                            "Close application."),
+                    new CommandLink("Work on fake data",
+                            "Play with some random data to see how application is working.")
+            );
+
+            if (choice == EXIT_PROGRAM)
+                System.exit(0);
+            else if (choice == WORK_WITH_FAKE_DATA)
+                card = generateFakeCard();
+        }
+        closeDevice();
+        setLockMode(false);
+
+        showCardInfo(checkBoxSanitizeData.isSelected());
+    }
+
+    private void setBrandIconAndDeleteLabel() {
+
+        java.net.URL where = null;
+
+        try {
+
+            if (card.getCardType().equals(CardType.VISA)) {
+
+                where = new URL("http://www.rowery-rybczynski.pl/themes/sklep/img/logo_paiement_visa.jpg");
+                iconVisa = iconVisa == null ? new ImageIcon(where) : iconVisa;
+                cardBrand.setIcon(iconVisa);
+            } else if (card.getCardType().equals(CardType.MASTERCARD)) {
+
+                where = new URL("http://www.rowery-rybczynski.pl/themes/sklep/img/logo_paiement_mastercard.jpg");
+                iconMastercard = iconMastercard == null ? new ImageIcon(where) : iconMastercard;
+                cardBrand.setIcon(iconMastercard);
+            }
+
+        } catch (MalformedURLException e) {
+            return;
+        }
+
+        cardBrand.setText("");
+    }
+
+    private ActionListener getButtonCLickedActionListener() {
+
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                Thread worker = new Thread() {
+
+                    public void run() {
+
+                        readCard();
+                    }
+                };
+
+                worker.start();
+            }
+
+            ;
+        };
+    }
+
+    private ActionListener getSecureCheckBoxActionListener() {
+
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                showCardInfo(checkBoxSanitizeData.isSelected());
+            }
+        };
+    }
+
 }
